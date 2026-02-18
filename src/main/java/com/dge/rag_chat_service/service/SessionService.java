@@ -3,7 +3,7 @@ package com.dge.rag_chat_service.service;
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 /**
  * Session Service defines the operations for managing chat sessions, including creating, renaming, favoriting, and deleting sessions.
@@ -21,7 +21,7 @@ public interface SessionService {
     /**
      * Retrieves all chat sessions for a specific user.
      */
-    List<SessionResponse> findAllByUserId(String userId);
+    Page<SessionResponse> findAllByUserId(String userId, int page, int size);
 
     /**
      * Rename the chat session name

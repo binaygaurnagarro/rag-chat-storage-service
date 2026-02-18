@@ -11,6 +11,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -86,32 +89,40 @@ class SessionControllerTest {
     @Test
     void testFindAllSessionByUserIdSuccess() throws Exception {
         String userId = "user123";
+        int page = 0;
+        int size = 10;
 
         SessionResponse sessionResponse1 = new SessionResponse(1L, "Session 1", userId,false, Instant.now(),Instant.now());
         SessionResponse sessionResponse2 = new SessionResponse(2L, "Session 2", userId,true, Instant.now(),Instant.now());
 
 
         List<SessionResponse> sessionResponses = Arrays.asList(sessionResponse1, sessionResponse2);
+        Page<SessionResponse> pagedSession = new PageImpl<>(sessionResponses, PageRequest.of(page, size), 2);
 
-        when(sessionService.findAllByUserId(userId)).thenReturn(sessionResponses);
+        when(sessionService.findAllByUserId(userId, page, size)).thenReturn(pagedSession);
 
-        mockMvc.perform(get("/v1/api/sessions/{userId}", userId))
+        mockMvc.perform(get("/v1/api/sessions/{userId}", userId)
+                        .param("page", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[1].id").value(2L));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].id").value(1L))
+                .andExpect(jsonPath("$.content[1].id").value(2L));
 
-        verify(sessionService).findAllByUserId(userId);
+        verify(sessionService).findAllByUserId(userId,page, size);
     }
 
     @Test
     void testFindAllSessionByUserIdEmptyPage() throws Exception {
         String userId = "user123";
-        when(sessionService.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+        Page<SessionResponse> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
+        when(sessionService.findAllByUserId(userId, 0, 10)).thenReturn(emptyPage);
 
-        mockMvc.perform(get("/v1/api/sessions/{userId}", userId))
+        mockMvc.perform(get("/v1/api/sessions/{userId}", userId)
+                        .param("page", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test

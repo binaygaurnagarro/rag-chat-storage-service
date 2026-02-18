@@ -8,8 +8,11 @@ import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.repository.ChatSessionRepository;
 import com.dge.rag_chat_service.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import java.util.List;
 /**
  * Service layer responsible for handling
  * business logic related to chat sessions.
@@ -45,9 +48,16 @@ public class SessionServiceImpl implements SessionService {
      * @param userId
      */
     @Override
-    public List<SessionResponse> findAllByUserId(String userId) {
+    public Page<SessionResponse> findAllByUserId(String userId, int page, int size) {
         log.info("Get chat sessions for userid={}", userId);
-        return repository.findByUserId(userId).stream().map(this::getSessionResponse).toList();
+        // Sorting by creation time (Newest ->Oldest)
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        return repository.findByUserId(userId, pageable).map(this::getSessionResponse);
     }
 
     /**

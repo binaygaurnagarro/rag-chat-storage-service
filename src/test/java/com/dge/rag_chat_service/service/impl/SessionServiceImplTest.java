@@ -14,11 +14,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -134,6 +138,8 @@ class SessionServiceImplTest {
     @DisplayName("List - success with multiple sessions")
     void list_shouldReturnSessions() {
         String userId = "user123";
+        int page = 0;
+        int size = 2;
 
         ChatSession chatSession = new ChatSession();
         chatSession.setId(1L);
@@ -151,30 +157,42 @@ class SessionServiceImplTest {
         chatSession2.setCreatedAt(Instant.now());
         chatSession2.setUpdatedAt(Instant.now());
 
+        Page<ChatSession> pageResult = new PageImpl<>(Arrays.asList(chatSession, chatSession2),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")), 2);
 
-        List<ChatSession> list= Arrays.asList(chatSession, chatSession2);
+        when(repository.findByUserId(eq(userId), any(Pageable.class))).thenReturn(pageResult);
 
-        when(repository.findByUserId(eq(userId))).thenReturn(list);
+        Page<SessionResponse> result = service.findAllByUserId(userId, page, size);
 
-        List<SessionResponse> result = service.findAllByUserId(userId);
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().get(0).name()).isEqualTo(chatSession.getName());
+        assertThat(result.getContent().get(1).name()).isEqualTo(chatSession2.getName());
 
-        assertThat(result.size()).isEqualTo(2);
-        assertThat(result.get(0).name()).isEqualTo(chatSession.getName());
-        assertThat(result.get(1).name()).isEqualTo(chatSession2.getName());
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        verify(repository).findByUserId(eq(userId), pageableCaptor.capture());
+        Pageable captured = pageableCaptor.getValue();
+        assertThat(captured.getPageNumber()).isEqualTo(page);
+        assertThat(captured.getPageSize()).isEqualTo(size);
 
-        verify(repository).findByUserId(eq(userId));
     }
 
     @Test
     @DisplayName("List - empty page")
     void list_whenEmpty_shouldReturnEmptyPage() {
         String userId = "user123";
+        int page = 0;
+        int size = 10;
 
-        when(repository.findByUserId(eq(userId))).thenReturn(Collections.emptyList());
+        Page<ChatSession> empty = new PageImpl<>(Collections.emptyList(),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt")), 0);
 
-        List<SessionResponse> result = service.findAllByUserId(userId);
+        when(repository.findByUserId(eq(userId), any(Pageable.class))).thenReturn(empty);
 
-        assertThat(result.size()).isEqualTo(0);
+        Page<SessionResponse> result = service.findAllByUserId(userId, page, size);
+
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isZero();
     }
 
     @Test

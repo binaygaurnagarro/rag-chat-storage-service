@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -108,7 +109,7 @@ class MessageControllerTest {
     void testListMessagesEmptyPage() throws Exception {
         Long sessionId = 1L;
 
-        Page<MessageResponse> emptyPage = new PageImpl<>(Arrays.asList(), PageRequest.of(0, 10), 0);
+        Page<MessageResponse> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
         when(messageService.list(sessionId, 0, 10)).thenReturn(emptyPage);
 
         mockMvc.perform(get("/v1/api/sessions/{sessionId}/messages", sessionId)

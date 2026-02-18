@@ -5,6 +5,7 @@ import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.service.SessionService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,8 +55,10 @@ public class SessionController {
      * @return list of chat sessions associated with the user
      */
     @GetMapping("/{userId}")
-    public List<SessionResponse> findAllByUserId(@PathVariable String userId) {
-        return service.findAllByUserId(userId);
+    public Page<SessionResponse> findAllByUserId(@PathVariable String userId,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "20") int size) {
+        return service.findAllByUserId(userId, page, size);
     }
 
     /**
