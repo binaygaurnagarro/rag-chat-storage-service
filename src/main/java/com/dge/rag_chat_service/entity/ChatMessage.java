@@ -1,6 +1,6 @@
 package com.dge.rag_chat_service.entity;
 
-import com.dge.rag_chat_service.model.SenderType;
+import com.dge.rag_chat_service.dto.SenderType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,7 +1,7 @@
 package com.dge.rag_chat_service.service;
 
-import com.dge.rag_chat_service.model.CreateMessageRequest;
-import com.dge.rag_chat_service.model.MessageResponse;
+import com.dge.rag_chat_service.dto.CreateMessageRequest;
+import com.dge.rag_chat_service.dto.MessageResponse;
 import org.springframework.data.domain.Page;
 
 /**

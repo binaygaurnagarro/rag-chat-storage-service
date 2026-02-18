@@ -1,8 +1,8 @@
 package com.dge.rag_chat_service.controller;
 
-import com.dge.rag_chat_service.model.CreateSessionRequest;
-import com.dge.rag_chat_service.model.RenameSessionRequest;
-import com.dge.rag_chat_service.model.SessionResponse;
+import com.dge.rag_chat_service.dto.CreateSessionRequest;
+import com.dge.rag_chat_service.dto.RenameSessionRequest;
+import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.service.SessionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

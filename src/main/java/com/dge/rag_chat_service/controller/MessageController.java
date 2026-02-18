@@ -1,7 +1,7 @@
 package com.dge.rag_chat_service.controller;
 
-import com.dge.rag_chat_service.model.CreateMessageRequest;
-import com.dge.rag_chat_service.model.MessageResponse;
+import com.dge.rag_chat_service.dto.CreateMessageRequest;
+import com.dge.rag_chat_service.dto.MessageResponse;
 import com.dge.rag_chat_service.service.MessageService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;

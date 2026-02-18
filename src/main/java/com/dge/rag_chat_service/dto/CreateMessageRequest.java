@@ -1,4 +1,4 @@
-package com.dge.rag_chat_service.model;
+package com.dge.rag_chat_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

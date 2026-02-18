@@ -1,8 +1,8 @@
 package com.dge.rag_chat_service.controller;
 
-import com.dge.rag_chat_service.model.CreateMessageRequest;
-import com.dge.rag_chat_service.model.MessageResponse;
-import com.dge.rag_chat_service.model.SenderType;
+import com.dge.rag_chat_service.dto.CreateMessageRequest;
+import com.dge.rag_chat_service.dto.MessageResponse;
+import com.dge.rag_chat_service.dto.SenderType;
 import com.dge.rag_chat_service.service.MessageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

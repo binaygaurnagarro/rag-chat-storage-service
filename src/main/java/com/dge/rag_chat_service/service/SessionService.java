@@ -1,8 +1,8 @@
 package com.dge.rag_chat_service.service;
 
-import com.dge.rag_chat_service.model.CreateSessionRequest;
-import com.dge.rag_chat_service.model.RenameSessionRequest;
-import com.dge.rag_chat_service.model.SessionResponse;
+import com.dge.rag_chat_service.dto.CreateSessionRequest;
+import com.dge.rag_chat_service.dto.RenameSessionRequest;
+import com.dge.rag_chat_service.dto.SessionResponse;
 import java.util.List;
 
 /**
