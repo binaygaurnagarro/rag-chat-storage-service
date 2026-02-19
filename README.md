@@ -8,7 +8,7 @@ This service securely stores:
 - Chat messages
 - Retrieved context metadata
 - Pagination support
-- Redis-based rate limiting
+- Bucket4j based rate limiting
 
 ---
 
@@ -18,8 +18,7 @@ This service securely stores:
 - Spring Boot 3
 - Spring Data JPA
 - Postgress
-- Redis (for rate limiting)
-- Bucket4j
+- Bucket4j (for rate limiting)
 - Lombok
 - Swagger / OpenAPI
 - Docker & Docker Compose
@@ -100,10 +99,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-  redis:
-    host: localhost
-    port: 6379
 ```
 
 ---
@@ -135,11 +130,6 @@ services:
       POSTGRES_DB: chatdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
 ```
 
 ---
@@ -166,7 +156,6 @@ http://localhost:8080
 # Rate Limiting
 
 * Implemented using Bucket4j
-* Backed by Redis
 * Limit: 10 requests per minute per API key
 * Required Header: `X-API-KEY`
 
@@ -427,7 +416,7 @@ Tests include:
 * Pagination for scalability
 * DTO separation from Entity
 * Global exception handling
-* Redis-based distributed rate limiting
+* Bucket4j rate limiting
 * Production-ready error responses
 
 ---

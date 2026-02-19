@@ -22,10 +22,16 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     private String apiKey;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.contains("/actuator") || path.contains("/swagger-ui") || path.contains("/v3/api-docs");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestPath = request.getRequestURI();
-        if (!requestPath.contains("/swagger") && !requestPath.contains("/v3/api-docs") && !apiKey.equals(request.getHeader("X-API-KEY"))) {
+        if (!apiKey.equals(request.getHeader("X-API-KEY"))) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Invalid API Key");
             return;
         }
         filterChain.doFilter(request, response);
