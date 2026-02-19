@@ -19,7 +19,7 @@ public interface SessionService {
     SessionResponse create(CreateSessionRequest req);
 
     /**
-     * Retrieves all chat sessions for a specific user.
+     * Retrieves all chat sessions for a specific user with pagination support.
      */
     Page<SessionResponse> findAllByUserId(String userId, int page, int size);
 

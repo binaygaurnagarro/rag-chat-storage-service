@@ -43,7 +43,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     /**
-     * Retrieves all chat sessions for a specific user.
+     * Retrieves all chat sessions for a specific user with pagination support.
      *
      * @param userId
      */

@@ -49,10 +49,12 @@ public class SessionController {
     }
 
     /**
-     * Retrieves all chat sessions for a specific user.
+     * Retrieves all chat sessions for a specific user with pagination support.
      *
      * @param userId user identifier
-     * @return list of chat sessions associated with the user
+     * @param page page number (0-based)
+     * @param size page size
+     * @return paginated list of chat sessions for the user
      */
     @GetMapping("/{userId}")
     public Page<SessionResponse> findAllByUserId(@PathVariable String userId,
