@@ -103,10 +103,14 @@ spring:
 
 ---
 
-## 3️. Start Postgress & Redis (Docker Recommended)
+## 3️. Start Postgres & Redis (Docker Recommended)
 
 ```bash
+docker-compose build --no-cache
+
 docker-compose up -d
+
+docker-compose logs
 ```
 
 Example `docker-compose.yml`:
