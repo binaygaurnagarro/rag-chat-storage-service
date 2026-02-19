@@ -68,7 +68,12 @@ class SessionControllerTest {
 
         mockMvc.perform(post("/v1/api/sessions")
                         .contentType("application/json")
-                        .content("{\"userId\":\"123\",\"name\":\"New Chat Session\"}"))
+                        .content("""
+                                {
+                                    "userId": "123",
+                                    "name":"New Chat Session"
+                                }
+                                """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("New Chat Session"));
@@ -134,7 +139,11 @@ class SessionControllerTest {
 
         mockMvc.perform(put("/v1/api/sessions/{id}/rename", sessionId)
                         .contentType("application/json")
-                        .content("{\"name\":\"Updated name\"}"))
+                        .content("""
+                                {
+                                    "name":"Updated name"
+                                }
+                                """))
                 .andExpect(status().isOk());
 
         verify(sessionService).rename(eq(sessionId), any(RenameSessionRequest.class));

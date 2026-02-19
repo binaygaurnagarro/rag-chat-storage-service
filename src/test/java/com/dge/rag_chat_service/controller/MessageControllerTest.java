@@ -62,7 +62,12 @@ class MessageControllerTest {
 
         mockMvc.perform(post("/v1/api/sessions/{sessionId}/messages", sessionId)
                         .contentType("application/json")
-                        .content("{\"sender\":\"USER\",\"message\":\"Test message\"}"))
+                        .content("""
+                        {
+                            "sender":"USER",
+                            "message":"Test message"
+                        }
+                        """))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.message").value("Test message"));
