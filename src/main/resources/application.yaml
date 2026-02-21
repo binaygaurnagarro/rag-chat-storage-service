@@ -20,8 +20,9 @@ spring:
   management:
     endpoints:
       web:
+        base-path: /actuator
         exposure:
-          include: health,info,metrics,env,beans,loggers
+          include: health,info,metrics
 
 security:
   api-key: ${API_KEY}

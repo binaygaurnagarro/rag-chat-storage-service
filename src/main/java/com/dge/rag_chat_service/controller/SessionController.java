@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * REST controller for managing chat sessions.
@@ -72,7 +73,7 @@ public class SessionController {
      *
      */
     @PutMapping("/{id}/rename")
-    public ResponseEntity<SessionResponse> rename(@PathVariable Long id, @Valid @RequestBody RenameSessionRequest req) {
+    public ResponseEntity<SessionResponse> rename(@PathVariable UUID id, @Valid @RequestBody RenameSessionRequest req) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(service.rename(id, req));
     }
@@ -86,7 +87,7 @@ public class SessionController {
      *
      */
     @PutMapping("/{id}/favorite")
-    public ResponseEntity<SessionResponse> favorite(@PathVariable Long id, @RequestParam boolean value) {
+    public ResponseEntity<SessionResponse> favorite(@PathVariable UUID id, @RequestParam boolean value) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(service.favorite(id, value));
     }
@@ -97,7 +98,7 @@ public class SessionController {
      * @param id session identifier
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void>  delete(@PathVariable Long id) {
+    public ResponseEntity<Void>  delete(@PathVariable UUID id) {
         service.delete(id);
 
         return ResponseEntity.noContent().build();

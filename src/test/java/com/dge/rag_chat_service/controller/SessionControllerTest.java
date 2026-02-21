@@ -21,11 +21,11 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -62,7 +62,7 @@ class SessionControllerTest {
     @DisplayName("Create session - success")
     void testCreateSessionSuccess() throws Exception {
 
-        SessionResponse sessionResponse = new SessionResponse(1L, "New Chat Session", "123",false, Instant.now(),Instant.now());
+        SessionResponse sessionResponse = new SessionResponse(UUID.randomUUID(), "New Chat Session", "123",false, Instant.now(),Instant.now());
 
         when(sessionService.create(any(CreateSessionRequest.class))).thenReturn(sessionResponse);
 
@@ -75,8 +75,8 @@ class SessionControllerTest {
                                 }
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("New Chat Session"));
+                .andExpect(jsonPath("$.id").value(sessionResponse.id().toString()))
+                .andExpect(jsonPath("$.name").value(sessionResponse.name()));
 
         verify(sessionService).create(any(CreateSessionRequest.class));
     }
@@ -97,8 +97,8 @@ class SessionControllerTest {
         int page = 0;
         int size = 10;
 
-        SessionResponse sessionResponse1 = new SessionResponse(1L, "Session 1", userId,false, Instant.now(),Instant.now());
-        SessionResponse sessionResponse2 = new SessionResponse(2L, "Session 2", userId,true, Instant.now(),Instant.now());
+        SessionResponse sessionResponse1 = new SessionResponse(UUID.randomUUID(), "Session 1", userId,false, Instant.now(),Instant.now());
+        SessionResponse sessionResponse2 = new SessionResponse(UUID.randomUUID(), "Session 2", userId,true, Instant.now(),Instant.now());
 
 
         List<SessionResponse> sessionResponses = Arrays.asList(sessionResponse1, sessionResponse2);
@@ -111,8 +111,8 @@ class SessionControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].id").value(1L))
-                .andExpect(jsonPath("$.content[1].id").value(2L));
+                .andExpect(jsonPath("$.content[0].id").value(sessionResponse1.id().toString()))
+                .andExpect(jsonPath("$.content[1].id").value(sessionResponse2.id().toString()));
 
         verify(sessionService).findAllByUserId(userId,page, size);
     }
@@ -133,9 +133,9 @@ class SessionControllerTest {
     @Test
     @DisplayName("Rename session - success")
     void testRenameSessionSuccess() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
 
-        when(sessionService.rename(anyLong(), any(RenameSessionRequest.class))).thenReturn(new SessionResponse(sessionId, "Updated name", "user123", false, Instant.now(), Instant.now()));
+        when(sessionService.rename(any(), any(RenameSessionRequest.class))).thenReturn(new SessionResponse(sessionId, "Updated name", "user123", false, Instant.now(), Instant.now()));
 
         mockMvc.perform(put("/v1/api/sessions/{id}/rename", sessionId)
                         .contentType("application/json")
@@ -152,7 +152,7 @@ class SessionControllerTest {
     @Test
     @DisplayName("Rename session - failure due to missing name")
     void testRenameSessionBadRequest() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
         mockMvc.perform(put("/v1/api/sessions/{id}/rename", sessionId)
                         .contentType("application/json")
                         .content("{}"))
@@ -162,8 +162,8 @@ class SessionControllerTest {
     @Test
     @DisplayName("Mark session as favorite - success")
     void testFavoriteSessionSuccess() throws Exception {
-        Long sessionId = 1L;
-        when(sessionService.favorite(anyLong(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", true, Instant.now(), Instant.now()));
+        UUID sessionId = UUID.randomUUID();
+        when(sessionService.favorite(any(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", true, Instant.now(), Instant.now()));
 
         mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId)
                         .param("value", "true"))
@@ -175,8 +175,8 @@ class SessionControllerTest {
     @Test
     @DisplayName("Unmark session as favorite - success")
     void testUnfavoriteSessionSuccess() throws Exception {
-        Long sessionId = 1L;
-        when(sessionService.favorite(anyLong(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", false, Instant.now(), Instant.now()));
+        UUID sessionId = UUID.randomUUID();
+        when(sessionService.favorite(any(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", false, Instant.now(), Instant.now()));
 
         mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId)
                         .param("value", "false"))
@@ -188,7 +188,7 @@ class SessionControllerTest {
     @Test
     @DisplayName("Favorite session - missing parameter")
     void testFavoriteSessionMissingParameter() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
 
         mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId))
                 .andExpect(status().isBadRequest());
@@ -197,8 +197,8 @@ class SessionControllerTest {
     @Test
     @DisplayName("Delete session - success")
     void testDeleteSessionSuccess() throws Exception {
-        Long sessionId = 1L;
-        doNothing().when(sessionService).delete(anyLong());
+        UUID sessionId = UUID.randomUUID();
+        doNothing().when(sessionService).delete(any());
 
         mockMvc.perform(delete("/v1/api/sessions/{id}", sessionId))
                 .andExpect(status().isNoContent());

@@ -13,6 +13,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
 /**
  * Service layer responsible for handling
  * business logic related to chat sessions.
@@ -64,7 +67,7 @@ public class SessionServiceImpl implements SessionService {
      * Rename the chat session name
      */
     @Override
-    public SessionResponse rename(Long id, RenameSessionRequest req) {
+    public SessionResponse rename(UUID id, RenameSessionRequest req) {
         log.info("Rename session for id={} and request={}", id, req);
         ChatSession session = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found"));
@@ -76,7 +79,7 @@ public class SessionServiceImpl implements SessionService {
      * Update the favorite status of a chat session.
      */
     @Override
-    public SessionResponse favorite(Long id, boolean value) {
+    public SessionResponse favorite(UUID id, boolean value) {
         log.info("Update favorite session for id={} and favorite={}", id, value);
         ChatSession session = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Session not found"));
@@ -89,7 +92,7 @@ public class SessionServiceImpl implements SessionService {
      */
 
     @Override
-    public void delete(Long id) {
+    public void delete(UUID id) {
         log.info("Delete session for id={}", id);
         ChatSession session = repository.findById(id)
                 .orElseThrow(() ->

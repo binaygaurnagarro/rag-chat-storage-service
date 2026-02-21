@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -61,7 +62,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("Add - success with valid request")
     void add_shouldSaveAndReturnMessage() {
-        Long sessionId = 11L;
+        UUID sessionId = UUID.randomUUID();
         CreateMessageRequest req = new CreateMessageRequest(SenderType.USER, "Hello world", null);
 
         ChatSession chatSession = new ChatSession();
@@ -70,11 +71,11 @@ class MessageServiceImplTest {
         when(sessionRepository.findById(eq(sessionId))).thenReturn(Optional.of(chatSession));
 
         ChatMessage saved = new ChatMessage();
-        saved.setId(100L);
+        saved.setId(UUID.randomUUID());
         saved.setSession(chatSession);
-        saved.setSender(SenderType.USER);
-        saved.setMessage("Hello world");
-        saved.setContext(null);
+        saved.setSender(req.sender());
+        saved.setMessage(req.message());
+        saved.setContext(req.context());
         saved.setCreatedAt(Instant.now());
 
         when(messageRepository.save(any(ChatMessage.class))).thenReturn(saved);
@@ -86,18 +87,18 @@ class MessageServiceImplTest {
         ChatMessage toSave = captor.getValue();
 
         assertThat(toSave.getSession()).isEqualTo(chatSession);
-        assertThat(toSave.getMessage()).isEqualTo("Hello world");
-        assertThat(toSave.getSender()).isEqualTo(SenderType.USER);
+        assertThat(toSave.getMessage()).isEqualTo(saved.getMessage());
+        assertThat(toSave.getSender()).isEqualTo(saved.getSender());
         assertThat(toSave.getContext()).isNull();
 
-        assertThat(result.id()).isEqualTo(100L);
-        assertThat(result.message()).isEqualTo("Hello world");
+        assertThat(result.id()).isEqualTo(saved.getId());
+        assertThat(result.message()).isEqualTo(saved.getMessage());
     }
 
     @Test
     @DisplayName("Add - with context")
     void add_withContextShouldSaveAndReturn() {
-        Long sessionId = 12L;
+        UUID sessionId = UUID.randomUUID();
         Map<String, Object> contextData = Map.of("key1", "value1", "key2", 123);
         CreateMessageRequest req = new CreateMessageRequest(SenderType.AI, "Response", contextData);
 
@@ -107,10 +108,10 @@ class MessageServiceImplTest {
         when(sessionRepository.findById(eq(sessionId))).thenReturn(Optional.of(chatSession));
 
         ChatMessage saved = new ChatMessage();
-        saved.setId(101L);
+        saved.setId(UUID.randomUUID());
         saved.setSession(chatSession);
-        saved.setSender(SenderType.AI);
-        saved.setMessage("Response");
+        saved.setSender(req.sender());
+        saved.setMessage(req.message());
         saved.setContext(contextData);
 
         when(messageRepository.save(any(ChatMessage.class))).thenReturn(saved);
@@ -127,7 +128,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("Add - session not found throws EntityNotFoundException")
     void add_whenSessionNotFound_shouldThrowEntityNotFound() {
-        Long sessionId = 999L;
+        UUID sessionId = UUID.randomUUID();
         CreateMessageRequest req = new CreateMessageRequest(SenderType.USER, "message", null);
 
         when(sessionRepository.findById(sessionId)).thenReturn(Optional.empty());
@@ -139,7 +140,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("Add - empty message")
     void add_withEmptyMessage_shouldSave() {
-        Long sessionId = 13L;
+        UUID sessionId = UUID.randomUUID();
         CreateMessageRequest req = new CreateMessageRequest(SenderType.USER, "", null);
 
         ChatSession chatSession = new ChatSession();
@@ -148,7 +149,7 @@ class MessageServiceImplTest {
         when(sessionRepository.findById(eq(sessionId))).thenReturn(Optional.of(chatSession));
 
         ChatMessage saved = new ChatMessage();
-        saved.setId(102L);
+        saved.setId(UUID.randomUUID());
         saved.setSession(chatSession);
         saved.setMessage("");
 
@@ -163,7 +164,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("Add - different sender types")
     void add_withDifferentSenders_shouldSave() {
-        Long sessionId = 14L;
+        UUID sessionId = UUID.randomUUID();
         ChatSession chatSession = new ChatSession();
         chatSession.setId(sessionId);
 
@@ -173,7 +174,7 @@ class MessageServiceImplTest {
             CreateMessageRequest req = new CreateMessageRequest(senderType, "test", null);
 
             ChatMessage saved = new ChatMessage();
-            saved.setId(103L);
+            saved.setId(UUID.randomUUID());
             saved.setSender(senderType);
             saved.setSession(chatSession);
 
@@ -188,7 +189,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("Add - repository throws exception")
     void add_whenRepositoryThrows_shouldPropagate() {
-        Long sessionId = 15L;
+        UUID sessionId = UUID.randomUUID();
         CreateMessageRequest req = new CreateMessageRequest(SenderType.USER, "test", null);
 
         ChatSession chatSession = new ChatSession();
@@ -204,7 +205,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - success with multiple messages")
     void list_shouldReturnPagedMessages() {
-        Long sessionId = 20L;
+        UUID sessionId = UUID.randomUUID();
         int page = 0;
         int size = 2;
 
@@ -214,18 +215,18 @@ class MessageServiceImplTest {
         chatSession.setId(sessionId);
 
         ChatMessage m1 = new ChatMessage();
-        m1.setId(1L);
+        m1.setId(UUID.randomUUID());
         m1.setSession(chatSession);
         m1.setSender(SenderType.USER);
         m1.setMessage("message 1");
-        m1.setCreatedAt(Instant.parse("2024-01-01T10:00:00Z"));
+        m1.setCreatedAt(Instant.now());
 
         ChatMessage m2 = new ChatMessage();
-        m2.setId(2L);
+        m2.setId(UUID.randomUUID());
         m2.setSession(chatSession);
         m2.setSender(SenderType.AI);
         m2.setMessage("message 2");
-        m2.setCreatedAt(Instant.parse("2024-01-01T11:00:00Z"));
+        m2.setCreatedAt(Instant.now());
 
         Page<ChatMessage> pageResult = new PageImpl<>(Arrays.asList(m1, m2),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdAt")), 2);
@@ -236,8 +237,8 @@ class MessageServiceImplTest {
 
         assertThat(result.getTotalElements()).isEqualTo(2);
         assertThat(result.getContent()).hasSize(2);
-        assertThat(result.getContent().get(0).message()).isEqualTo("message 1");
-        assertThat(result.getContent().get(1).message()).isEqualTo("message 2");
+        assertThat(result.getContent().get(0).message()).isEqualTo(m1.getMessage());
+        assertThat(result.getContent().get(1).message()).isEqualTo(m2.getMessage());
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(messageRepository).findBySessionId(eq(sessionId), pageableCaptor.capture());
@@ -249,7 +250,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - empty page")
     void list_whenEmpty_shouldReturnEmptyPage() {
-        Long sessionId = 30L;
+        UUID sessionId = UUID.randomUUID();
         int page = 0;
         int size = 10;
 
@@ -269,7 +270,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - session not found throws EntityNotFoundException")
     void list_whenSessionNotFound_shouldThrowEntityNotFound() {
-        Long sessionId = 99L;
+        UUID sessionId = UUID.randomUUID();
 
         when(sessionRepository.existsById(sessionId)).thenReturn(false);
 
@@ -280,7 +281,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - different page sizes")
     void list_withDifferentPageSizes_shouldAdjustPageable() {
-        Long sessionId = 40L;
+        UUID sessionId = UUID.randomUUID();
         when(sessionRepository.existsById(eq(sessionId))).thenReturn(true);
 
         Page<ChatMessage> emptyPage = new PageImpl<>(Collections.emptyList(),
@@ -297,14 +298,14 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - pagination with multiple pages")
     void list_withMultiplePages_shouldReturnCorrectPage() {
-        Long sessionId = 50L;
+        UUID sessionId = UUID.randomUUID();
         int page = 1;
         int size = 1;
 
         when(sessionRepository.existsById(eq(sessionId))).thenReturn(true);
 
         ChatMessage m1 = new ChatMessage();
-        m1.setId(10L);
+        m1.setId(UUID.randomUUID());
         m1.setMessage("page 2 message");
 
         Page<ChatMessage> pageResult = new PageImpl<>(Arrays.asList(m1),
@@ -322,7 +323,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - sorting order")
     void list_shouldSortByCreatedAtAscending() {
-        Long sessionId = 60L;
+        UUID sessionId = UUID.randomUUID();
 
         when(sessionRepository.existsById(eq(sessionId))).thenReturn(true);
 
@@ -341,7 +342,7 @@ class MessageServiceImplTest {
     @Test
     @DisplayName("List - repository throws exception")
     void list_whenRepositoryThrows_shouldPropagate() {
-        Long sessionId = 70L;
+        UUID sessionId = UUID.randomUUID();
 
         when(sessionRepository.existsById(eq(sessionId))).thenReturn(true);
         when(messageRepository.findBySessionId(eq(sessionId), any(Pageable.class)))

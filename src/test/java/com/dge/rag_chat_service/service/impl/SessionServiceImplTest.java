@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,9 +63,9 @@ class SessionServiceImplTest {
         CreateSessionRequest req = new CreateSessionRequest("user1", "My Session");
 
         ChatSession saved = new ChatSession();
-        saved.setId(1L);
-        saved.setUserId("user1");
-        saved.setName("My Session");
+        saved.setId(UUID.randomUUID());
+        saved.setUserId(req.userId());
+        saved.setName(req.name());
         saved.setCreatedAt(Instant.now());
         saved.setUpdatedAt(Instant.now());
 
@@ -76,9 +77,9 @@ class SessionServiceImplTest {
         verify(repository).save(captor.capture());
         ChatSession toSave = captor.getValue();
 
-        assertThat(toSave.getUserId()).isEqualTo("user1");
-        assertThat(toSave.getName()).isEqualTo("My Session");
-        assertThat(result.id()).isEqualTo(1L);
+        assertThat(toSave.getUserId()).isEqualTo(saved.getUserId());
+        assertThat(toSave.getName()).isEqualTo(saved.getName());
+        assertThat(result.id()).isEqualTo(saved.getId());
     }
 
     @Test
@@ -94,15 +95,15 @@ class SessionServiceImplTest {
         CreateSessionRequest req = new CreateSessionRequest("user1", "");
 
         ChatSession saved = new ChatSession();
-        saved.setId(2L);
-        saved.setUserId("user1");
-        saved.setName("");
+        saved.setId(UUID.randomUUID());
+        saved.setUserId(req.userId());
+        saved.setName(req.name());
 
         when(repository.save(any(ChatSession.class))).thenReturn(saved);
 
         SessionResponse result = service.create(req);
 
-        assertThat(result.name()).isEqualTo("");
+        assertThat(result.name()).isEqualTo(saved.getName());
         verify(repository).save(any(ChatSession.class));
     }
 
@@ -112,9 +113,9 @@ class SessionServiceImplTest {
         CreateSessionRequest req = new CreateSessionRequest(null, "Session");
 
         ChatSession saved = new ChatSession();
-        saved.setId(3L);
-        saved.setUserId(null);
-        saved.setName("Session");
+        saved.setId(UUID.randomUUID());
+        saved.setUserId(req.userId());
+        saved.setName(req.name());
 
         when(repository.save(any(ChatSession.class))).thenReturn(saved);
 
@@ -142,7 +143,7 @@ class SessionServiceImplTest {
         int size = 2;
 
         ChatSession chatSession = new ChatSession();
-        chatSession.setId(1L);
+        chatSession.setId(UUID.randomUUID());
         chatSession.setName("Chat Session 1");
         chatSession.setUserId(userId);
         chatSession.setFavorite(false);
@@ -150,7 +151,7 @@ class SessionServiceImplTest {
         chatSession.setUpdatedAt(Instant.now());
 
         ChatSession chatSession2 = new ChatSession();
-        chatSession2.setId(2L);
+        chatSession2.setId(UUID.randomUUID());
         chatSession2.setName("Chat Session 2");
         chatSession2.setUserId(userId);
         chatSession2.setFavorite(true);
@@ -198,9 +199,9 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Rename - success with valid id and name")
     void rename_shouldUpdateNameAndUpdatedAt() {
-        Long id = 10L;
+        UUID id = UUID.randomUUID();
         ChatSession existingSession = ChatSession.builder()
-                .id(1L)
+                .id(id)
                 .name("Old Name")
                 .userId("u123")
                 .build();
@@ -218,7 +219,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Rename - session not found throws EntityNotFoundException")
     void rename_whenSessionNotFound_shouldThrowEntityNotFound() {
-        Long id = 99L;
+        UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         RenameSessionRequest req = new RenameSessionRequest("anything");
@@ -231,7 +232,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Rename - null request throws NPE")
     void rename_withNullRequest_shouldThrowNpe() {
-        Long id = 5L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
         existing.setName("old");
@@ -245,7 +246,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Rename - empty name")
     void rename_withEmptyName_shouldUpdate() {
-        Long id = 11L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
         existing.setName("Old");
@@ -264,7 +265,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Rename - repository throws exception")
     void rename_whenRepositoryThrows_shouldPropagate() {
-        Long id = 12L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
 
@@ -280,7 +281,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Favorite - set favorite to true")
     void favorite_shouldSetFavoriteToTrue() {
-        Long id = 2L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
         existing.setFavorite(false);
@@ -301,7 +302,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Favorite - set favorite to false")
     void favorite_shouldSetFavoriteToFalse() {
-        Long id = 3L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
         existing.setFavorite(true);
@@ -322,7 +323,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Favorite - session not found throws EntityNotFoundException")
     void favorite_whenSessionNotFound_shouldThrowEntityNotFound() {
-        Long id = 123L;
+        UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.favorite(id, true));
@@ -333,7 +334,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Favorite - repository throws exception")
     void favorite_whenRepositoryThrows_shouldPropagate() {
-        Long id = 4L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
 
@@ -347,7 +348,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Delete - success with valid id")
     void delete_shouldInvokeRepository() {
-        Long id = 7L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
 
@@ -363,7 +364,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Delete - session not found throws EntityNotFoundException")
     void delete_whenSessionNotFound_shouldThrowEntityNotFound() {
-        Long id = 50L;
+        UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.delete(id));
@@ -374,7 +375,7 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Delete - repository throws exception")
     void delete_whenRepositoryThrows_shouldPropagate() {
-        Long id = 8L;
+        UUID id = UUID.randomUUID();
         ChatSession existing = new ChatSession();
         existing.setId(id);
 

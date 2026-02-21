@@ -5,6 +5,8 @@ import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import org.springframework.data.domain.Page;
 
+import java.util.UUID;
+
 /**
  * Session Service defines the operations for managing chat sessions, including creating, renaming, favoriting, and deleting sessions.
  * Each session is associated with a user and can contain multiple messages.
@@ -26,15 +28,15 @@ public interface SessionService {
     /**
      * Rename the chat session name
      */
-    SessionResponse rename(Long id, RenameSessionRequest req);
+    SessionResponse rename(UUID id, RenameSessionRequest req);
 
     /**
      * Update the favorite status of a chat session.
      */
-    SessionResponse favorite(Long id, boolean value);
+    SessionResponse favorite(UUID id, boolean value);
 
     /**
      * Deletes a chat session and all associated messages.
      */
-    void delete(Long id);
+    void delete(UUID id);
 }

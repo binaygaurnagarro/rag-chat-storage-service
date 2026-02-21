@@ -1,12 +1,13 @@
 package com.dge.rag_chat_service.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Response model for chat session details.
  */
 public record SessionResponse(
-        Long id,
+        UUID id,
         String name,
         String userId,
         boolean favorite,

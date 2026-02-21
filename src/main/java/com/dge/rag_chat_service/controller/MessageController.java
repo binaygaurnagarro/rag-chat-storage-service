@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 /**
  * REST controller for managing chat messages.
  * Exposes APIs to Store chat messages and get chat messages with pagination.
@@ -37,7 +39,7 @@ public class MessageController {
      * @return created chat message
      */
     @PostMapping
-    public ResponseEntity<MessageResponse> add(@PathVariable Long sessionId,
+    public ResponseEntity<MessageResponse> add(@PathVariable UUID sessionId,
                                                @Valid @RequestBody CreateMessageRequest req) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -53,7 +55,7 @@ public class MessageController {
      * @return paginated list of chat messages for the session
      */
     @GetMapping
-    public Page<MessageResponse> list(@PathVariable Long sessionId,
+    public Page<MessageResponse> list(@PathVariable UUID sessionId,
                                   @RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "20") int size) {
         return service.list(sessionId, page,size);

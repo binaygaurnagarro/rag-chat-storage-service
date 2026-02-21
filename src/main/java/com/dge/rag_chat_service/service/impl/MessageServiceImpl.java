@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Service implementation for managing chat messages within a session. It defines methods for adding new messages and retrieving messages with pagination support.
  *
@@ -37,7 +39,7 @@ public class MessageServiceImpl implements MessageService {
      *
      */
     @Override
-    public MessageResponse add(Long sessionId, CreateMessageRequest req) {
+    public MessageResponse add(UUID sessionId, CreateMessageRequest req) {
 
         log.info("Save chat message for sessionId={} and request={}", sessionId, req);
 
@@ -59,7 +61,7 @@ public class MessageServiceImpl implements MessageService {
      *
      */
     @Override
-    public Page<MessageResponse> list(Long sessionId, int page, int size) {
+    public Page<MessageResponse> list(UUID sessionId, int page, int size) {
 
         log.info("Get paginated chat messages for sessionId={}", sessionId);
 

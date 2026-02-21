@@ -4,7 +4,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
@@ -16,9 +15,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Entity representing a chat session created by a user.
@@ -42,8 +43,10 @@ import java.util.List;
 public class ChatSession {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     private String userId;
     private String name;
@@ -69,55 +72,6 @@ public class ChatSession {
     @PreUpdate
     void onUpdate() {
         updatedAt = Instant.now();
-    }
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isFavorite() {
-        return favorite;
-    }
-    public void setFavorite(boolean favorite) {
-        this.favorite = favorite;
-    }
-
-    public List<ChatMessage> getMessages() {
-        return messages;
-    }
-    public void setMessages(List<ChatMessage> messages) {
-        this.messages = messages;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
 

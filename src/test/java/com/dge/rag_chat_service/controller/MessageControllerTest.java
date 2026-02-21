@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,9 +55,9 @@ class MessageControllerTest {
 
     @Test
     void testAddMessageSuccess() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
 
-        MessageResponse messageResponse = new MessageResponse(1L, SenderType.USER, "Test message", null, null);
+        MessageResponse messageResponse = new MessageResponse(UUID.randomUUID(), SenderType.USER, "Test message", null, null);
 
         when(messageService.add(eq(sessionId), any(CreateMessageRequest.class))).thenReturn(messageResponse);
 
@@ -69,15 +70,15 @@ class MessageControllerTest {
                         }
                         """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.message").value("Test message"));
+                .andExpect(jsonPath("$.id").value(messageResponse.id().toString()))
+                .andExpect(jsonPath("$.message").value(messageResponse.message()));
 
         verify(messageService).add(eq(sessionId), any(CreateMessageRequest.class));
     }
 
     @Test
     void testAddMessageBadRequest() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
         mockMvc.perform(post("/v1/api/sessions/{sessionId}/messages", sessionId)
                         .contentType("application/json")
                         .content("{}"))
@@ -86,12 +87,12 @@ class MessageControllerTest {
 
     @Test
     void testListMessagesSuccess() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
         int page = 0;
         int size = 10;
 
-        MessageResponse messageResponse1 = new MessageResponse(1L, SenderType.USER, "Message 1", null, null);
-        MessageResponse messageResponse2 = new MessageResponse(2L, SenderType.USER, "Message 2", null, null);
+        MessageResponse messageResponse1 = new MessageResponse(UUID.randomUUID(), SenderType.USER, "Message 1", null, null);
+        MessageResponse messageResponse2 = new MessageResponse(UUID.randomUUID(), SenderType.USER, "Message 2", null, null);
 
 
         List<MessageResponse> messages = Arrays.asList(messageResponse1, messageResponse2);
@@ -104,15 +105,15 @@ class MessageControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].id").value(1L))
-                .andExpect(jsonPath("$.content[1].id").value(2L));
+                .andExpect(jsonPath("$.content[0].id").value(messageResponse1.id().toString()))
+                .andExpect(jsonPath("$.content[1].id").value(messageResponse2.id().toString()));
 
         verify(messageService).list(sessionId, page, size);
     }
 
     @Test
     void testListMessagesEmptyPage() throws Exception {
-        Long sessionId = 1L;
+        UUID sessionId = UUID.randomUUID();
 
         Page<MessageResponse> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
         when(messageService.list(sessionId, 0, 10)).thenReturn(emptyPage);

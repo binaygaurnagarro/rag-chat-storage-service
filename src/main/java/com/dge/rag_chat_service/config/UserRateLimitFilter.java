@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Rate limit filter that enforces per-user (API key) request limits using Bucket4j.
  * - Key resolution: 'X-API-KEY' header if present, otherwise client IP.
- * - Default limit: 100 requests per minute (adjust constants below as needed).
+ * - Default limit: 10 requests per minute (adjust constants below as needed).
  * - Response: HTTP 429 with simple message and rate-limit headers.
  */
 @Component
@@ -32,7 +32,7 @@ public class UserRateLimitFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(UserRateLimitFilter.class);
 
-    // configurable policy: 100 tokens per minute
+    // configurable policy: 10 tokens per minute
     private static final long TOKENS = 10;
     private static final Duration REFILL_PERIOD = Duration.ofMinutes(1);
 

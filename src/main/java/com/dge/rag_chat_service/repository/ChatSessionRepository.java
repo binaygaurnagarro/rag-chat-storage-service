@@ -6,13 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.UUID;
 
 /**
  * Repository interface for managing ChatSession entities in the database.
  */
 @Repository
-public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> {
+public interface ChatSessionRepository extends JpaRepository<ChatSession, UUID> {
 
     Page<ChatSession> findByUserId(String userId, Pageable pageable);
 }
