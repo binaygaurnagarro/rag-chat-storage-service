@@ -36,14 +36,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleValidation(
             MethodArgumentNotValidException ex) {
 
-        Map<String, String> errors = new HashMap<>();
+        ErrorResponse errorResponse=ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(ex.getMessage())
+                .timestamp(Instant.now())
+                .build();
 
         ex.getBindingResult().getFieldErrors()
                 .forEach(error ->
-                        errors.put(error.getField(),
-                                error.getDefaultMessage()));
+                                errorResponse.setMessage(error.getField()+": "+error.getDefaultMessage()));
 
-        return ResponseEntity.badRequest().body(errors);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     // Handle generic exception

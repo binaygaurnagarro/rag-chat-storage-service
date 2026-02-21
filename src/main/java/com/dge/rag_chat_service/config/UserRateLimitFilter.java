@@ -1,5 +1,6 @@
 package com.dge.rag_chat_service.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -82,8 +85,14 @@ public class UserRateLimitFilter implements Filter {
             httpResp.setHeader("Retry-After", String.valueOf(waitSeconds));
             httpResp.setHeader("X-RateLimit-Limit", String.valueOf(TOKENS));
             httpResp.setHeader("X-RateLimit-Remaining", "0");
-            httpResp.setContentType("text/plain;charset=UTF-8");
-            httpResp.getWriter().write("Too Many Requests - Rate limit exceeded. Retry after " + waitSeconds + " seconds.");
+            httpResp.setContentType("application/json;charset=UTF-8");
+            Map<String, Object> errorBody = new HashMap<>();
+            errorBody.put("timestamp", Instant.now().toString());
+            errorBody.put("status", HttpStatus.TOO_MANY_REQUESTS.value());
+            errorBody.put("error", HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase());
+            errorBody.put("message", "Rate limit exceeded. Retry after " + waitSeconds + " seconds.");
+            ObjectMapper objectMapper = new ObjectMapper();
+            httpResp.getWriter().write(objectMapper.writeValueAsString(errorBody));
             log.debug("Rate limit exceeded for key={} waitSeconds={}", key, waitSeconds);
         }
     }
