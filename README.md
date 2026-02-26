@@ -8,7 +8,7 @@ This service securely stores:
 - Chat messages
 - Retrieved context metadata
 - Pagination support
-- Bucket4j based rate limiting
+- Redis based rate limiting
 
 ---
 
@@ -179,7 +179,6 @@ Headers returned:
 ```
 X-RateLimit-Limit
 X-RateLimit-Remaining
-Retry-After
 ```
 
 ---

@@ -30,23 +30,31 @@ public class RedisRateLimiterFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        String key = "rate_limit:" + request.getRemoteAddr();
+        String apiKey = request.getHeader("X-API-KEY");
+        String clientIp = request.getRemoteAddr();
+        String key = (apiKey != null && !apiKey.isBlank()) ? "api:" + apiKey : "ip:" + clientIp;
         String count = redisTemplate.opsForValue().get(key);
 
         if (count == null) {
             redisTemplate.opsForValue().set(key, "1", WINDOW);
-        } else if (Integer.parseInt(count) >= LIMIT) {
-            response.setStatus(429);
-            response.setContentType("application/json");
-            response.getWriter().write("""
-                {
-                  "status":429,
-                  "error":"Too Many Requests"
-                }
-            """);
-            return;
         } else {
-            redisTemplate.opsForValue().increment(key);
+            String rateLimit = String.valueOf(LIMIT - Integer.parseInt(count));
+            if (Integer.parseInt(count) >= LIMIT) {
+                response.setHeader("X-RateLimit-Limit", rateLimit);
+                response.setHeader("X-RateLimit-Remaining", "0");
+                response.setStatus(429);
+                response.setContentType("application/json");
+                response.getWriter().write("""
+                    {
+                      "status":429,
+                      "error":"Too Many Requests"
+                    }
+                """);
+                return;
+            } else {
+                response.setHeader("X-RateLimit-Limit", rateLimit);
+                redisTemplate.opsForValue().increment(key);
+            }
         }
 
         chain.doFilter(request, response);
