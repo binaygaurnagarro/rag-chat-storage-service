@@ -1,3 +1,4 @@
+/*
 package com.dge.rag_chat_service.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,12 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+*/
 /**
  * Rate limit filter that enforces per-user (API key) request limits using Bucket4j.
  * - Key resolution: 'X-API-KEY' header if present, otherwise client IP.
  * - Default limit: 10 requests per minute (adjust constants below as needed).
  * - Response: HTTP 429 with simple message and rate-limit headers.
- */
+ *//*
+
 @Component
 public class UserRateLimitFilter implements Filter {
 
@@ -96,4 +99,4 @@ public class UserRateLimitFilter implements Filter {
             log.debug("Rate limit exceeded for key={} waitSeconds={}", key, waitSeconds);
         }
     }
-}
+}*/
