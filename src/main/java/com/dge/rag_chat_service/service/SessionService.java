@@ -18,7 +18,7 @@ public interface SessionService {
     /**
      * Creates a new chat session for a user.
      */
-    SessionResponse create(CreateSessionRequest req);
+    SessionResponse create(CreateSessionRequest req, String userId);
 
     /**
      * Retrieves all chat sessions for a specific user with pagination support.

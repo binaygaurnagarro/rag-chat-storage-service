@@ -2,7 +2,7 @@ package com.dge.rag_chat_service.service.impl;
 
 import com.dge.rag_chat_service.entity.ChatMessage;
 import com.dge.rag_chat_service.entity.ChatSession;
-import com.dge.rag_chat_service.exception.EntityNotFoundException;
+import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateMessageRequest;
 import com.dge.rag_chat_service.dto.MessageResponse;
 import com.dge.rag_chat_service.repository.ChatMessageRepository;
@@ -45,7 +45,7 @@ public class MessageServiceImpl implements MessageService {
 
         ChatSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("Session not found"));
+                        new ResourceNotFoundException("Session not found"));
 
         ChatMessage m = ChatMessage.builder()
                 .session(session)
@@ -68,7 +68,7 @@ public class MessageServiceImpl implements MessageService {
         // Validate session exists
         if (!sessionRepository.existsById(sessionId)) {
             log.error("Session not found for sessionId={}", sessionId);
-            throw new EntityNotFoundException(
+            throw new ResourceNotFoundException(
                     "Session not found with id: " + sessionId);
         }
 

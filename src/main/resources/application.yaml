@@ -26,10 +26,10 @@ spring:
       web:
         base-path: /actuator
         exposure:
-          include: health,info,metrics
+          include: health
 
 security:
-  api-key: ${API_KEY}
+  api-keys: ${API_KEYS}
 server:
   servlet:
     context-path: /chat

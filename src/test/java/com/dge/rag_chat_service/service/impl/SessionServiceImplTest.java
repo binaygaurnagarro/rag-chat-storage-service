@@ -1,7 +1,7 @@
 package com.dge.rag_chat_service.service.impl;
 
 import com.dge.rag_chat_service.entity.ChatSession;
-import com.dge.rag_chat_service.exception.EntityNotFoundException;
+import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
@@ -60,11 +60,12 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Create - success with valid request")
     void create_shouldSaveAndReturnSession() {
-        CreateSessionRequest req = new CreateSessionRequest("user1", "My Session");
+        CreateSessionRequest req = new CreateSessionRequest("My Session");
+        String userid = "user1";
 
         ChatSession saved = new ChatSession();
         saved.setId(UUID.randomUUID());
-        saved.setUserId(req.userId());
+        saved.setUserId(userid);
         saved.setName(req.name());
         saved.setCreatedAt(Instant.now());
         saved.setUpdatedAt(Instant.now());
@@ -72,7 +73,7 @@ class SessionServiceImplTest {
         ArgumentCaptor<ChatSession> captor = ArgumentCaptor.forClass(ChatSession.class);
         when(repository.save(any(ChatSession.class))).thenReturn(saved);
 
-        SessionResponse result = service.create(req);
+        SessionResponse result = service.create(req, userid);
 
         verify(repository).save(captor.capture());
         ChatSession toSave = captor.getValue();
@@ -85,54 +86,38 @@ class SessionServiceImplTest {
     @Test
     @DisplayName("Create - null request throws NPE")
     void create_withNullRequest_shouldThrowNpe() {
-        assertThrows(NullPointerException.class, () -> service.create(null));
+        assertThrows(NullPointerException.class, () -> service.create(null, "user1"));
         verifyNoInteractions(repository);
     }
 
     @Test
     @DisplayName("Create - empty name")
     void create_withEmptyName_shouldSave() {
-        CreateSessionRequest req = new CreateSessionRequest("user1", "");
+        String userid = "user1";
+        CreateSessionRequest req = new CreateSessionRequest( "");
 
         ChatSession saved = new ChatSession();
         saved.setId(UUID.randomUUID());
-        saved.setUserId(req.userId());
+        saved.setUserId(userid);
         saved.setName(req.name());
 
         when(repository.save(any(ChatSession.class))).thenReturn(saved);
 
-        SessionResponse result = service.create(req);
+        SessionResponse result = service.create(req, userid);
 
         assertThat(result.name()).isEqualTo(saved.getName());
         verify(repository).save(any(ChatSession.class));
     }
 
     @Test
-    @DisplayName("Create - null userId")
-    void create_withNullUserId_shouldSave() {
-        CreateSessionRequest req = new CreateSessionRequest(null, "Session");
-
-        ChatSession saved = new ChatSession();
-        saved.setId(UUID.randomUUID());
-        saved.setUserId(req.userId());
-        saved.setName(req.name());
-
-        when(repository.save(any(ChatSession.class))).thenReturn(saved);
-
-        SessionResponse result = service.create(req);
-
-        assertThat(result.userId()).isNull();
-        verify(repository).save(any(ChatSession.class));
-    }
-
-    @Test
     @DisplayName("Create - repository throws exception")
     void create_whenRepositoryThrows_shouldPropagate() {
-        CreateSessionRequest req = new CreateSessionRequest("user1", "Session");
+        String userid = "user1";
+        CreateSessionRequest req = new CreateSessionRequest( "Session");
         when(repository.save(any(ChatSession.class)))
                 .thenThrow(new RuntimeException("Database error"));
 
-        assertThrows(RuntimeException.class, () -> service.create(req));
+        assertThrows(RuntimeException.class, () -> service.create(req, userid));
     }
 
     @Test
@@ -217,14 +202,14 @@ class SessionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Rename - session not found throws EntityNotFoundException")
+    @DisplayName("Rename - session not found throws ResourceNotFoundException")
     void rename_whenSessionNotFound_shouldThrowEntityNotFound() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         RenameSessionRequest req = new RenameSessionRequest("anything");
 
-        assertThrows(EntityNotFoundException.class, () -> service.rename(id, req));
+        assertThrows(ResourceNotFoundException.class, () -> service.rename(id, req));
         verify(repository).findById(id);
         verify(repository, never()).save(any());
     }
@@ -321,12 +306,12 @@ class SessionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Favorite - session not found throws EntityNotFoundException")
+    @DisplayName("Favorite - session not found throws ResourceNotFoundException")
     void favorite_whenSessionNotFound_shouldThrowEntityNotFound() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.favorite(id, true));
+        assertThrows(ResourceNotFoundException.class, () -> service.favorite(id, true));
         verify(repository).findById(id);
         verify(repository, never()).save(any());
     }
@@ -362,12 +347,12 @@ class SessionServiceImplTest {
     }
 
     @Test
-    @DisplayName("Delete - session not found throws EntityNotFoundException")
+    @DisplayName("Delete - session not found throws ResourceNotFoundException")
     void delete_whenSessionNotFound_shouldThrowEntityNotFound() {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> service.delete(id));
+        assertThrows(ResourceNotFoundException.class, () -> service.delete(id));
         verify(repository).findById(id);
         verify(repository, never()).delete(any());
     }

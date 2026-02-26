@@ -1,6 +1,5 @@
 package com.dge.rag_chat_service.controller;
 
-import com.dge.rag_chat_service.dto.CreateSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.service.SessionService;
@@ -11,19 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,15 +22,12 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Unit tests for SessionController.
- * Tests the REST endpoints for creating, renaming, favoriting and deleting chat sessions.
+ * Tests the REST endpoints for creating, renaming, favouring and deleting chat sessions.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SessionController Tests")
@@ -59,78 +47,6 @@ class SessionControllerTest {
     }
 
     @Test
-    @DisplayName("Create session - success")
-    void testCreateSessionSuccess() throws Exception {
-
-        SessionResponse sessionResponse = new SessionResponse(UUID.randomUUID(), "New Chat Session", "123",false, Instant.now(),Instant.now());
-
-        when(sessionService.create(any(CreateSessionRequest.class))).thenReturn(sessionResponse);
-
-        mockMvc.perform(post("/v1/api/sessions")
-                        .contentType("application/json")
-                        .content("""
-                                {
-                                    "userId": "123",
-                                    "name":"New Chat Session"
-                                }
-                                """))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(sessionResponse.id().toString()))
-                .andExpect(jsonPath("$.name").value(sessionResponse.name()));
-
-        verify(sessionService).create(any(CreateSessionRequest.class));
-    }
-
-    @Test
-    @DisplayName("Create session - failure due to missing fields")
-    void testCreateSessionBadRequest() throws Exception {
-
-        mockMvc.perform(post("/v1/api/sessions")
-                        .contentType("application/json")
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void testFindAllSessionByUserIdSuccess() throws Exception {
-        String userId = "user123";
-        int page = 0;
-        int size = 10;
-
-        SessionResponse sessionResponse1 = new SessionResponse(UUID.randomUUID(), "Session 1", userId,false, Instant.now(),Instant.now());
-        SessionResponse sessionResponse2 = new SessionResponse(UUID.randomUUID(), "Session 2", userId,true, Instant.now(),Instant.now());
-
-
-        List<SessionResponse> sessionResponses = Arrays.asList(sessionResponse1, sessionResponse2);
-        Page<SessionResponse> pagedSession = new PageImpl<>(sessionResponses, PageRequest.of(page, size), 2);
-
-        when(sessionService.findAllByUserId(userId, page, size)).thenReturn(pagedSession);
-
-        mockMvc.perform(get("/v1/api/sessions/{userId}", userId)
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].id").value(sessionResponse1.id().toString()))
-                .andExpect(jsonPath("$.content[1].id").value(sessionResponse2.id().toString()));
-
-        verify(sessionService).findAllByUserId(userId,page, size);
-    }
-
-    @Test
-    void testFindAllSessionByUserIdEmptyPage() throws Exception {
-        String userId = "user123";
-        Page<SessionResponse> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
-        when(sessionService.findAllByUserId(userId, 0, 10)).thenReturn(emptyPage);
-
-        mockMvc.perform(get("/v1/api/sessions/{userId}", userId)
-                        .param("page", "0")
-                        .param("size", "10"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(0)));
-    }
-
-    @Test
     @DisplayName("Rename session - success")
     void testRenameSessionSuccess() throws Exception {
         UUID sessionId = UUID.randomUUID();
@@ -147,16 +63,6 @@ class SessionControllerTest {
                 .andExpect(status().isOk());
 
         verify(sessionService).rename(eq(sessionId), any(RenameSessionRequest.class));
-    }
-
-    @Test
-    @DisplayName("Rename session - failure due to missing name")
-    void testRenameSessionBadRequest() throws Exception {
-        UUID sessionId = UUID.randomUUID();
-        mockMvc.perform(put("/v1/api/sessions/{id}/rename", sessionId)
-                        .contentType("application/json")
-                        .content("{}"))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

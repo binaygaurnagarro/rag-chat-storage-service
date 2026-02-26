@@ -1,7 +1,7 @@
 package com.dge.rag_chat_service.service.impl;
 
 import com.dge.rag_chat_service.entity.ChatSession;
-import com.dge.rag_chat_service.exception.EntityNotFoundException;
+import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
@@ -35,11 +35,11 @@ public class SessionServiceImpl implements SessionService {
      * Creates a new chat session for a user.
      */
     @Override
-    public SessionResponse create(CreateSessionRequest req) {
+    public SessionResponse create(CreateSessionRequest req, String userId) {
 
         log.info("Create session for request={}", req);
         ChatSession session = ChatSession.builder()
-                .userId(req.userId())
+                .userId(userId)
                 .name(req.name())
                 .build();
         return getSessionResponse(repository.save(session));
@@ -48,7 +48,6 @@ public class SessionServiceImpl implements SessionService {
     /**
      * Retrieves all chat sessions for a specific user with pagination support.
      *
-     * @param userId
      */
     @Override
     public Page<SessionResponse> findAllByUserId(String userId, int page, int size) {
@@ -70,7 +69,7 @@ public class SessionServiceImpl implements SessionService {
     public SessionResponse rename(UUID id, RenameSessionRequest req) {
         log.info("Rename session for id={} and request={}", id, req);
         ChatSession session = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
         session.setName(req.name());
         return getSessionResponse(repository.save(session));
     }
@@ -82,7 +81,7 @@ public class SessionServiceImpl implements SessionService {
     public SessionResponse favorite(UUID id, boolean value) {
         log.info("Update favorite session for id={} and favorite={}", id, value);
         ChatSession session = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
         session.setFavorite(value);
         return getSessionResponse(repository.save(session));
     }
@@ -96,7 +95,7 @@ public class SessionServiceImpl implements SessionService {
         log.info("Delete session for id={}", id);
         ChatSession session = repository.findById(id)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("Session not found"));
+                        new ResourceNotFoundException("Session not found"));
 
         repository.delete(session);
     }

@@ -2,7 +2,7 @@ package com.dge.rag_chat_service.service.impl;
 
 import com.dge.rag_chat_service.entity.ChatMessage;
 import com.dge.rag_chat_service.entity.ChatSession;
-import com.dge.rag_chat_service.exception.EntityNotFoundException;
+import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateMessageRequest;
 import com.dge.rag_chat_service.dto.MessageResponse;
 import com.dge.rag_chat_service.dto.SenderType;
@@ -126,14 +126,14 @@ class MessageServiceImplTest {
     }
 
     @Test
-    @DisplayName("Add - session not found throws EntityNotFoundException")
+    @DisplayName("Add - session not found throws ResourceNotFoundException")
     void add_whenSessionNotFound_shouldThrowEntityNotFound() {
         UUID sessionId = UUID.randomUUID();
         CreateMessageRequest req = new CreateMessageRequest(SenderType.USER, "message", null);
 
         when(sessionRepository.findById(sessionId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> messageService.add(sessionId, req));
+        assertThrows(ResourceNotFoundException.class, () -> messageService.add(sessionId, req));
         verify(messageRepository, never()).save(any());
     }
 
@@ -268,13 +268,13 @@ class MessageServiceImplTest {
     }
 
     @Test
-    @DisplayName("List - session not found throws EntityNotFoundException")
+    @DisplayName("List - session not found throws ResourceNotFoundException")
     void list_whenSessionNotFound_shouldThrowEntityNotFound() {
         UUID sessionId = UUID.randomUUID();
 
         when(sessionRepository.existsById(sessionId)).thenReturn(false);
 
-        assertThrows(EntityNotFoundException.class, () -> messageService.list(sessionId, 0, 10));
+        assertThrows(ResourceNotFoundException.class, () -> messageService.list(sessionId, 0, 10));
         verify(messageRepository, never()).findBySessionId(any(), any());
     }
 

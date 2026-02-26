@@ -7,20 +7,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Global exception handler to manage and format API error responses consistently across the application.
- * It captures specific exceptions like EntityNotFoundException and generic exceptions, returning structured error responses with appropriate HTTP status codes and messages.
+ * It captures specific exceptions like ResourceNotFoundException and generic exceptions, returning structured error responses with appropriate HTTP status codes and messages.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     // Handle custom exception
-    @ExceptionHandler(EntityNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
-            EntityNotFoundException ex) {
+            ResourceNotFoundException ex) {
 
         ErrorResponse error=ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
