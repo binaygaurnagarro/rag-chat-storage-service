@@ -18,7 +18,8 @@ This service securely stores:
 - Spring Boot 3
 - Spring Data JPA
 - Postgress
-- Bucket4j (for rate limiting)
+- Redis (for rate limiting)
+- Bucket4j
 - Lombok
 - Swagger / OpenAPI
 - Docker & Docker Compose
@@ -37,13 +38,6 @@ This service securely stores:
 - Rate limiting
 - Centralized error handling and logging
 - Health check endpoint
-
----
-
-## API Authentication
-
-All APIs require the following header:
-- 'X-API-KEY: secret-key'
 
 ---
 
@@ -99,6 +93,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  data:
+    redis:
+      host: redis
+      port: 6379
 ```
 
 ---
@@ -111,6 +109,8 @@ docker-compose build --no-cache
 docker-compose up -d
 
 docker-compose logs
+
+docker-compose down
 ```
 
 Example `docker-compose.yml`:
@@ -134,6 +134,10 @@ services:
       POSTGRES_DB: chatdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 ```
 
 ---
@@ -160,6 +164,7 @@ http://localhost:8080
 # Rate Limiting
 
 * Implemented using Bucket4j
+* Backed by Redis
 * Limit: 10 requests per minute per API key
 * Required Header: `X-API-KEY`
 
@@ -189,6 +194,13 @@ http://localhost:8080/chat/v1/api/
 
 ---
 
+---
+
+## API Authentication
+
+All APIs require the following header:
+- 'X-API-KEYS: abc123'
+
 ## 1️. Create Session
 
 **POST** `/sessions`
@@ -197,8 +209,7 @@ Request Body:
 
 ```json
 {
-    "userId": "user1",
-    "name": "session5"
+    "name": "session1"
 }
 ```
 
@@ -212,7 +223,7 @@ Response:
 
 ## 2️. Get Sessions By User (Paginated)
 
-**GET** `/sessions?userId=user2&page=0&size=10`
+**GET** `/sessions?page=0&size=10`
 
 Response:
 
@@ -420,7 +431,7 @@ Tests include:
 * Pagination for scalability
 * DTO separation from Entity
 * Global exception handling
-* Bucket4j rate limiting
+* Redis bases rate limiting
 * Production-ready error responses
 
 ---

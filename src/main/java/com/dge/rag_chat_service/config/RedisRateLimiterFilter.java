@@ -11,7 +11,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-
+/**
+ * Filter to implement rate limiting using Redis.
+ * Limits each IP address to a certain number of requests within a time window.
+ */
 @Component
 @RequiredArgsConstructor
 public class RedisRateLimiterFilter extends OncePerRequestFilter {
