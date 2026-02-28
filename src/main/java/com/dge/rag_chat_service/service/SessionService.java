@@ -1,6 +1,7 @@
 package com.dge.rag_chat_service.service;
 
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
+import com.dge.rag_chat_service.dto.FavoriteSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public interface SessionService {
     /**
      * Update the favorite status of a chat session.
      */
-    SessionResponse favorite(UUID id, boolean value);
+    SessionResponse favorite(UUID id, FavoriteSessionRequest req);
 
     /**
      * Deletes a chat session and all associated messages.

@@ -1,5 +1,6 @@
 package com.dge.rag_chat_service.controller;
 
+import com.dge.rag_chat_service.dto.FavoriteSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.service.SessionService;
@@ -10,18 +11,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.Instant;
 import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,26 +71,36 @@ class SessionControllerTest {
     @DisplayName("Mark session as favorite - success")
     void testFavoriteSessionSuccess() throws Exception {
         UUID sessionId = UUID.randomUUID();
-        when(sessionService.favorite(any(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", true, Instant.now(), Instant.now()));
+        when(sessionService.favorite(any(UUID.class), any(FavoriteSessionRequest.class))).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", true, Instant.now(), Instant.now()));
 
-        mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId)
-                        .param("value", "true"))
+        mockMvc.perform(patch("/v1/api/sessions/{id}/favorite", sessionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "favorite": true
+                                }
+                                """))
                 .andExpect(status().isOk());
 
-        verify(sessionService).favorite(sessionId, true);
+        verify(sessionService).favorite(eq(sessionId), any(FavoriteSessionRequest.class));
     }
 
     @Test
     @DisplayName("Unmark session as favorite - success")
     void testUnfavoriteSessionSuccess() throws Exception {
         UUID sessionId = UUID.randomUUID();
-        when(sessionService.favorite(any(), anyBoolean())).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", false, Instant.now(), Instant.now()));
+        when(sessionService.favorite(any(UUID.class), any(FavoriteSessionRequest.class))).thenReturn(new SessionResponse(sessionId, "Session Name", "user123", false, Instant.now(), Instant.now()));
 
-        mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId)
-                        .param("value", "false"))
+        mockMvc.perform(patch("/v1/api/sessions/{id}/favorite", sessionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "favorite": false
+                                }
+                                """))
                 .andExpect(status().isOk());
 
-        verify(sessionService).favorite(sessionId, false);
+        verify(sessionService).favorite(eq(sessionId), any(FavoriteSessionRequest.class));
     }
 
     @Test
@@ -96,7 +108,7 @@ class SessionControllerTest {
     void testFavoriteSessionMissingParameter() throws Exception {
         UUID sessionId = UUID.randomUUID();
 
-        mockMvc.perform(put("/v1/api/sessions/{id}/favorite", sessionId))
+        mockMvc.perform(patch("/v1/api/sessions/{id}/favorite", sessionId))
                 .andExpect(status().isBadRequest());
     }
 

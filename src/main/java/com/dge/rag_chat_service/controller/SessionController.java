@@ -1,16 +1,19 @@
 package com.dge.rag_chat_service.controller;
 
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
+import com.dge.rag_chat_service.dto.FavoriteSessionRequest;
 import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.service.SessionService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,14 +31,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/api/sessions")
+@RequiredArgsConstructor
 public class SessionController {
 
     private final SessionService service;
-
-    public SessionController(SessionService service) {
-        this.service = service;
-     }
-
     /**
      * Creates a new chat session.
      *
@@ -44,7 +43,7 @@ public class SessionController {
      * @return created session
      */
     @PostMapping
-    public ResponseEntity<SessionResponse> create(@Valid @RequestBody CreateSessionRequest req, Authentication authentication) {
+    public ResponseEntity<SessionResponse> create(@RequestBody CreateSessionRequest req, Authentication authentication) {
 
         String userId = authentication.getName();
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -89,10 +88,10 @@ public class SessionController {
      * @return updated session with new favorite status
      *
      */
-    @PutMapping("/{id}/favorite")
-    public ResponseEntity<SessionResponse> favorite(@PathVariable UUID id, @RequestParam boolean value) {
+    @PatchMapping("/{id}/favorite")
+    public ResponseEntity<SessionResponse> favorite(@PathVariable UUID id, @Valid @RequestBody FavoriteSessionRequest req) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(service.favorite(id, value));
+                .body(service.favorite(id, req));
     }
 
     /**

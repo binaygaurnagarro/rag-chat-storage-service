@@ -1,5 +1,6 @@
 package com.dge.rag_chat_service.service.impl;
 
+import com.dge.rag_chat_service.dto.FavoriteSessionRequest;
 import com.dge.rag_chat_service.entity.ChatSession;
 import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
@@ -273,8 +274,9 @@ class SessionServiceImplTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(repository.save(any(ChatSession.class))).thenAnswer(inv -> inv.getArgument(0));
+        FavoriteSessionRequest req = new FavoriteSessionRequest(true);
 
-        SessionResponse result = service.favorite(id, true);
+        SessionResponse result = service.favorite(id, req);
 
         ArgumentCaptor<ChatSession> captor = ArgumentCaptor.forClass(ChatSession.class);
         verify(repository).save(captor.capture());
@@ -294,8 +296,9 @@ class SessionServiceImplTest {
 
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(repository.save(any(ChatSession.class))).thenAnswer(inv -> inv.getArgument(0));
+        FavoriteSessionRequest req = new FavoriteSessionRequest(false);
 
-        SessionResponse result = service.favorite(id, false);
+        SessionResponse result = service.favorite(id, req);
 
         ArgumentCaptor<ChatSession> captor = ArgumentCaptor.forClass(ChatSession.class);
         verify(repository).save(captor.capture());
@@ -311,7 +314,8 @@ class SessionServiceImplTest {
         UUID id = UUID.randomUUID();
         when(repository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.favorite(id, true));
+        FavoriteSessionRequest req = new FavoriteSessionRequest(true);
+        assertThrows(ResourceNotFoundException.class, () -> service.favorite(id, req));
         verify(repository).findById(id);
         verify(repository, never()).save(any());
     }
@@ -326,8 +330,8 @@ class SessionServiceImplTest {
         when(repository.findById(id)).thenReturn(Optional.of(existing));
         when(repository.save(any(ChatSession.class)))
                 .thenThrow(new RuntimeException("Save failed"));
-
-        assertThrows(RuntimeException.class, () -> service.favorite(id, true));
+        FavoriteSessionRequest req = new FavoriteSessionRequest(true);
+        assertThrows(RuntimeException.class, () -> service.favorite(id, req));
     }
 
     @Test

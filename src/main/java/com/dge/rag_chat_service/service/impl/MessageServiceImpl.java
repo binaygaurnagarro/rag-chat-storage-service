@@ -8,6 +8,7 @@ import com.dge.rag_chat_service.dto.MessageResponse;
 import com.dge.rag_chat_service.repository.ChatMessageRepository;
 import com.dge.rag_chat_service.repository.ChatSessionRepository;
 import com.dge.rag_chat_service.service.MessageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,16 +24,12 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
     private final ChatMessageRepository repository;
 
     private final ChatSessionRepository sessionRepository;
-
-    public MessageServiceImpl(ChatMessageRepository repository, ChatSessionRepository sessionRepository) {
-        this.repository = repository;
-        this.sessionRepository = sessionRepository;
-    }
 
     /**
      * Service method to add a new message to a chat session.

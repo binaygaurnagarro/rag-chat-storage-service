@@ -4,6 +4,7 @@ import com.dge.rag_chat_service.dto.CreateMessageRequest;
 import com.dge.rag_chat_service.dto.MessageResponse;
 import com.dge.rag_chat_service.service.MessageService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +24,10 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/v1/api/sessions/{sessionId}/messages")
+@RequiredArgsConstructor
 public class MessageController {
 
     private final MessageService service;
-
-    public MessageController(MessageService service) {
-        this.service = service;
-    }
-
     /**
      * Store chat messages with optional retrieved context
      *

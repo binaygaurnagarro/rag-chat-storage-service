@@ -1,5 +1,6 @@
 package com.dge.rag_chat_service.service.impl;
 
+import com.dge.rag_chat_service.dto.FavoriteSessionRequest;
 import com.dge.rag_chat_service.entity.ChatSession;
 import com.dge.rag_chat_service.exception.ResourceNotFoundException;
 import com.dge.rag_chat_service.dto.CreateSessionRequest;
@@ -7,6 +8,7 @@ import com.dge.rag_chat_service.dto.RenameSessionRequest;
 import com.dge.rag_chat_service.dto.SessionResponse;
 import com.dge.rag_chat_service.repository.ChatSessionRepository;
 import com.dge.rag_chat_service.service.SessionService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,13 +25,10 @@ import java.util.UUID;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
     private final ChatSessionRepository repository;
-
-    public SessionServiceImpl(ChatSessionRepository repository) {
-        this.repository = repository;
-    }
 
     /**
      * Creates a new chat session for a user.
@@ -40,7 +39,7 @@ public class SessionServiceImpl implements SessionService {
         log.info("Create session for request={}", req);
         ChatSession session = ChatSession.builder()
                 .userId(userId)
-                .name(req.name())
+                .name(req.name() != null ? req.name() : "New Chat")
                 .build();
         return getSessionResponse(repository.save(session));
     }
@@ -68,8 +67,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public SessionResponse rename(UUID id, RenameSessionRequest req) {
         log.info("Rename session for id={} and request={}", id, req);
-        ChatSession session = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+        ChatSession session = getSession(id);
         session.setName(req.name());
         return getSessionResponse(repository.save(session));
     }
@@ -78,11 +76,10 @@ public class SessionServiceImpl implements SessionService {
      * Update the favorite status of a chat session.
      */
     @Override
-    public SessionResponse favorite(UUID id, boolean value) {
-        log.info("Update favorite session for id={} and favorite={}", id, value);
-        ChatSession session = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
-        session.setFavorite(value);
+    public SessionResponse favorite(UUID id, FavoriteSessionRequest req) {
+        log.info("Update favorite session for id={} and favorite={}", id, req.favorite());
+        ChatSession session = getSession(id);
+        session.setFavorite(req.favorite());
         return getSessionResponse(repository.save(session));
     }
 
@@ -93,11 +90,14 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public void delete(UUID id) {
         log.info("Delete session for id={}", id);
-        ChatSession session = repository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Session not found"));
+        ChatSession session = getSession(id);
 
         repository.delete(session);
+    }
+
+    private ChatSession getSession(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found"));
     }
 
     SessionResponse getSessionResponse(ChatSession session){
